@@ -1,0 +1,302 @@
+/* General Styles */
+body {
+  font-family: 'Roboto', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #ffffff; /* Light mode background */
+  color: #1c1b1f; /* Light mode text color */
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* System Theme */
+@media (prefers-color-scheme: dark) {
+  body:not(.light-mode) {
+      background-color: #1c1b1f; /* Dark mode background */
+      color: #ffffff; /* Dark mode text color */
+  }
+}
+
+/* Dark Mode Override */
+body.dark-mode {
+  background-color: #1c1b1f; /* Dark mode background */
+  color: #ffffff; /* Dark mode text color */
+}
+
+/* Light Mode Override */
+body.light-mode {
+  background-color: #ffffff; /* Light mode background */
+  color: #1c1b1f; /* Light mode text color */
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background-color: inherit; /* Match body background */
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 32px;
+  font-family: 'Doto', sans-serif; /* Custom font */
+  color: inherit; /* Match body text color */
+  font-weight: bold; /* Make header text bold */
+}
+
+/* Mode Toggle */
+.mode-toggle {
+  cursor: pointer;
+}
+
+.mode-toggle .material-symbols-outlined {
+  font-size: 32px;
+  color: #6750a4; /* Purple color for the icon */
+}
+
+/* Carousel Container */
+.carousel-container {
+  max-width: 800px;
+  margin: 100px auto 0; /* Add top margin for spacing */
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+/* Carousel Image */
+.carousel-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Zoom in to fill the carousel */
+  border-radius: 12px;
+}
+
+/* File Type Indicator */
+.file-type {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  z-index: 10;
+  user-select: none; /* Make text non-selectable */
+  pointer-events: none; /* Ignore pointer events */
+}
+
+/* Carousel Controls */
+.carousel-control-prev,
+.carousel-control-next {
+  background-color: rgba(103, 80, 164, 0.7); /* Purple with transparency */
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.carousel-control-prev {
+  left: 10px;
+}
+
+.carousel-control-next {
+  right: 10px;
+}
+
+.carousel-control-prev:hover,
+.carousel-control-next:hover {
+  background-color: rgba(103, 80, 164, 1); /* Solid purple on hover */
+}
+
+/* Carousel Indicator */
+.carousel-indicator {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 14px;
+  z-index: 10;
+  user-select: none; /* Make text non-selectable */
+}
+
+/* Thumbnail Gallery */
+.thumbnail-gallery {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 20px auto;
+  max-width: 800px;
+  flex-wrap: wrap;
+}
+
+.thumbnail-container {
+  position: relative;
+  cursor: pointer;
+  border: 3px solid transparent; /* Thicker border */
+  border-radius: 8px; /* Match thumbnail border radius */
+  transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
+}
+
+.thumbnail-container.active {
+  border-color: #6750a4; /* Highlight for active thumbnail */
+  box-shadow: 0 0 10px rgba(103, 80, 164, 0.7); /* Glow effect */
+}
+
+.thumbnail-container:hover {
+  transform: scale(1.2); /* Grow on hover */
+}
+
+.thumbnail {
+  width: 100px;
+  height: 75px;
+  object-fit: cover;
+  border-radius: 5px; /* Match container border radius */
+  transition: transform 0.3s;
+}
+
+/* Light Mode Thumbnail Border Color */
+body.light-mode .thumbnail-container.active {
+  border-color: #6C91BF; /* Updated vibrant color for light mode */
+}
+
+/* Capture Button */
+.capture-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #4caf50; /* Muted green */
+  color: white;
+  border: none;
+  border-radius: 25px; /* Pill shape */
+  padding: 12px 24px; /* Slightly larger */
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 0 30px rgba(76, 175, 80, 0.7); /* Glow effect */
+  transition: background-color 0.3s, box-shadow 0.3s;
+  font-family: 'Doto', sans-serif; /* Match header font */
+  font-weight: bold; /* Make button text bold */
+}
+
+.capture-button:hover {
+  background-color: #45a049; /* Slightly darker green on hover */
+  box-shadow: 0 0 15px rgba(76, 175, 80, 0.9); /* Stronger glow on hover */
+}
+
+.capture-button .material-symbols-outlined {
+  font-size: 20px;
+  color: white;
+}
+
+/* Loading Spinner */
+#loadingSpinner {
+  display: none; /* Hidden by default */
+  width: 20px;
+  height: 20px;
+  border-width: 2px;
+}
+
+/* Toast Message */
+.toast-container {
+  position: fixed;
+  bottom: 80px; /* Position above the button */
+  right: 20px;
+  z-index: 1000;
+}
+
+.toast {
+  background-color: var(--toast-bg, #333); /* Default background color */
+  color: white;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 14px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 0 10px rgba(255, 255, 255, 0.3); /* Shadow and glow */
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Toast background color for dark mode */
+body.dark-mode .toast {
+  background-color: #1c1b1f; /* Dark mode background */
+  color: #ffffff; /* Dark mode text color */
+}
+
+/* Toast background color for light mode */
+body.light-mode .toast {
+  background-color: #ffffff; /* Light mode background */
+  color: #1c1b1f; /* Light mode text color */
+}
+
+/* Green background for success toast */
+.toast.success {
+  background-color: #4caf50; /* Green background for "finished" */
+}
+
+/* Red background for error toast */
+.toast.error {
+  background-color: #ff4444; /* Red background for errors */
+}
+
+/* Trashbin Icon */
+.trashbin-icon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  color: #888; /* Default color */
+  transition: color 0.3s;
+  z-index: 20; /* Ensure it appears above other elements */
+}
+
+.trashbin-icon:hover {
+  color: #ff4444; /* Red color on hover */
+}
+
+/* Ensure the trashbin icon is visible on carousel and thumbnails */
+.carousel-container .trashbin-icon {
+  top: 20px;
+  right: 20px;
+}
+
+.thumbnail-container .trashbin-icon {
+  top: 5px;
+  right: 5px;
+}
+
+/* Placeholder Thumbnail */
+.placeholder-thumbnail {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100px;
+  height: 75px;
+  border: 2px dashed #888;
+  border-radius: 8px;
+  background-color: #f0f0f0;
+  color: #888;
+  text-align: center;
+  font-size: 12px;
+  padding: 10px;
+  cursor: default; /* Disable pointer events */
+}
+
+/* Dark mode styles for placeholder thumbnail */
+body.dark-mode .placeholder-thumbnail {
+  border-color: #555;
+  background-color: #333;
+  color: #aaa;
+}
