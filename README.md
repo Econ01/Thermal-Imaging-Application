@@ -84,6 +84,26 @@ On the BBB, install the seeed_mlx9064x library:
 ```bash
 pip install seeed_mlx9064x
 ```
+
+### **Important Note for I2C Bus Configuration**  
+<span style="color:red">**If the device is not using I2C Bus 1 (for example, the BeagleBone Black uses Bus 2), you must manually configure the I2C bus in the library.**</span>  
+
+To do this:  
+1. Navigate to the `seeed_mlx9064x.py` file located in your Python site-packages directory. The path is typically:  
+   ```terminal
+   ~/.local/lib/python3.7/site-packages/seeed_mlx9064x.py
+   ```
+2. Open the file and locate the __init__ function.
+3. Find the line:
+   ```python
+   self.bus = Bus()
+   ```
+4. Change it to:
+   ```python
+   self.bus = Bus(correct_bus_number)
+   ```
+   Replace correct_bus_number with the appropriate bus number for your device. For the BeagleBone Black, this is 2.
+
 ### **3. Running the Application**
 - **Windows**: Double-click the `Run_Thermal_Imager(Windows).bat` file to start the Flask server and open the web interface.
 - **Linux**: Run the `Run_Thermal_Imager(Linux).sh` script to start the Flask server and open the web interface.
