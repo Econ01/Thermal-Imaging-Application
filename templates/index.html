@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thermal Imager 3000</title> <!-- Updated title -->
+    <title>Thermal Imager 3000</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Material Icons for Dark/Light Mode Toggle and Camera Icon -->
@@ -17,7 +17,7 @@
 <body>
     <!-- Header and Dark/Light Mode Toggle -->
     <div class="header">
-        <h1>Thermal Imager 3000</h1> <!-- Updated header text -->
+        <h1>Thermal Imager 3000</h1>
         <div class="mode-toggle">
             <span class="material-symbols-outlined" id="modeIcon">dark_mode</span>
         </div>
@@ -25,39 +25,52 @@
 
     <!-- Bootstrap Carousel -->
     <div class="carousel-container">
-        <div id="carouselExample" class="carousel slide" data-bs-ride="false"> <!-- Disable auto-scrolling -->
-            <div class="carousel-inner">
-                {% for photo in photo_files %}
-                <div class="carousel-item {% if loop.first %}active{% endif %}">
-                    <img src="{{ url_for('output_file', filename=photo) }}" class="d-block w-100 carousel-image" alt="{{ photo }}">
-                    <div class="file-type">{{ photo.split('.')[-1] }}</div> <!-- File type indicator -->
-                </div>
-                {% endfor %}
+        <div id="carouselExample" class="carousel slide" data-bs-ride="false">
+        <div class="carousel-inner">
+            {% for photo in photo_files %}
+            <div class="carousel-item {% if loop.first %}active{% endif %}">
+            <img src="{{ url_for('output_file', filename=photo) }}" class="d-block w-100 carousel-image" alt="{{ photo }}">
+            <div class="file-type">{{ photo.split('.')[-1] }}</div>
+            <span class="material-symbols-outlined trashbin-icon carousel-trashbin" style="display: none;">delete</span> <!-- Trashbin icon for carousel image -->
             </div>
-            <!-- Carousel Controls -->
-            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Previous</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Next</span>
-            </button>
+            {% endfor %}
+        </div>
+        <!-- Carousel Controls -->
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
         </div>
         <!-- Carousel Indicator -->
         <div class="carousel-indicator">
-            <span id="currentIndex">1</span> / <span id="totalImages">{{ photo_files|length }}</span>
+        <span id="currentIndex">1</span> / <span id="totalImages">{{ photo_files|length }}</span>
         </div>
     </div>
-
-    <!-- Thumbnail Gallery -->
-    <div class="thumbnail-gallery">
-        {% for photo in photo_files %}
-        <div class="thumbnail-container" data-bs-target="#carouselExample" data-bs-slide-to="{{ loop.index0 }}">
+    
+    <!-- Thumbnail Card -->
+    <div class="thumbnail-card">
+        <div class="scrollview"> <!-- Scrollable container -->
+        <div class="thumbnail-gallery">
+            {% for photo in photo_files %}
+            <div class="thumbnail-container" data-bs-target="#carouselExample" data-bs-slide-to="{{ loop.index0 }}">
             <img src="{{ url_for('output_file', filename=photo) }}" class="thumbnail" alt="{{ photo }}">
+            <div class="file-type">{{ photo.split('.')[-1] }}</div>
+            <span class="material-symbols-outlined trashbin-icon" style="display: none;">delete</span> <!-- Trashbin icon for thumbnail -->
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
+        </div>
     </div>
+    
+    <!-- Batch Delete Button -->
+    <button class="batch-delete-button" id="batchDeleteButton" style="display: none;">
+        <span class="material-symbols-outlined">delete</span>
+        <span>Delete Selected</span>
+    </button>
 
     <!-- Capture Button -->
     <button class="capture-button" id="captureButton">

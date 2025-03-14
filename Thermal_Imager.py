@@ -20,6 +20,9 @@ def index():
         if not photo_files:
             return render_template('index.html', photo_files=[])  # Return empty list if no images are found
 
+        # Reverse the order of the photo_files list so the newest image appears first
+        photo_files.reverse()
+
         return render_template('index.html', photo_files=photo_files)
     except Exception as e:
         return f"Error: {str(e)}"
@@ -42,6 +45,10 @@ def get_images():
 
         # Get all image files in the Output directory, excluding .raw files
         photo_files = [f for f in os.listdir(OUTPUT_DIRECTORY) if f.lower().endswith(('.png', '.jpg', '.jpeg', '.gif'))]
+        
+        # Reverse the order of the photo_files list so the newest image appears first
+        photo_files.reverse()
+
         return jsonify(photo_files)
     except Exception as e:
         return jsonify([])  # Return empty list in case of any error

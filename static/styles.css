@@ -3,9 +3,10 @@ body {
   font-family: 'Roboto', sans-serif;
   margin: 0;
   padding: 0;
-  background-color: #ffffff; /* Light mode background */
-  color: #1c1b1f; /* Light mode text color */
+  background-color: #ffffff;
+  color: #1c1b1f;
   transition: background-color 0.3s, color 0.3s;
+  overflow: hidden; /* Prevent page scrolling */
 }
 
 /* System Theme */
@@ -66,7 +67,7 @@ body.light-mode {
   margin: 100px auto 0; /* Add top margin for spacing */
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Default shadow */
   position: relative;
 }
 
@@ -132,22 +133,45 @@ body.light-mode {
   user-select: none; /* Make text non-selectable */
 }
 
+/* Thumbnail Card */
+.thumbnail-card {
+  max-width: 800px; /* Same width as the carousel */
+  width: 100%; /* Ensure it takes full width up to max-width */
+  margin: 20px auto; /* Center the card horizontally */
+  background-color: inherit;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden; /* Hide overflow from the card */
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(75px * 3 + 20px * 2); /* Height for 3 rows of thumbnails + padding */
+}
+
+/* Scrollview Container */
+.scrollview {
+  overflow-y: auto; /* Make the container scrollable vertically */
+  flex-grow: 1; /* Take up remaining space inside the thumbnail card */
+  padding: 10px; /* Add padding for spacing */
+}
+
 /* Thumbnail Gallery */
 .thumbnail-gallery {
   display: flex;
   justify-content: center;
   gap: 10px;
-  margin: 20px auto;
-  max-width: 800px;
   flex-wrap: wrap;
 }
 
+/* Thumbnail Container */
 .thumbnail-container {
   position: relative;
   cursor: pointer;
   border: 3px solid transparent; /* Thicker border */
   border-radius: 8px; /* Match thumbnail border radius */
   transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
+  width: 100px; /* Fixed width for thumbnails */
+  height: 75px; /* Fixed height for thumbnails */
 }
 
 .thumbnail-container.active {
@@ -155,13 +179,18 @@ body.light-mode {
   box-shadow: 0 0 10px rgba(103, 80, 164, 0.7); /* Glow effect */
 }
 
+.thumbnail-container.selected {
+  border-color: #ff4444; /* Red border for selected thumbnails */
+  box-shadow: 0 0 10px rgba(255, 68, 68, 0.7); /* Glow effect for selected thumbnails */
+}
+
 .thumbnail-container:hover {
   transform: scale(1.2); /* Grow on hover */
 }
 
 .thumbnail {
-  width: 100px;
-  height: 75px;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   border-radius: 5px; /* Match container border radius */
   transition: transform 0.3s;
@@ -170,6 +199,54 @@ body.light-mode {
 /* Light Mode Thumbnail Border Color */
 body.light-mode .thumbnail-container.active {
   border-color: #6C91BF; /* Updated vibrant color for light mode */
+}
+
+/* Default Trashbin Icon */
+.thumbnail-container .trashbin-icon {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  cursor: pointer;
+  color: #888; /* Default color */
+  transition: color 0.3s;
+  z-index: 20; /* Ensure it appears above other elements */
+  display: block; /* Show by default */
+}
+
+.thumbnail-container .trashbin-icon:hover {
+  color: #ff4444; /* Red color on hover */
+}
+
+/* Hide default trashbin icons when multiple thumbnails are selected */
+.thumbnail-container.selected .trashbin-icon {
+  display: none; /* Hide default trashbin icons for selected thumbnails */
+}
+
+/* Batch Delete Button */
+.batch-delete-button {
+  position: fixed;
+  bottom: 80px; /* Position above the capture button */
+  right: 20px;
+  background-color: #ff4444; /* Red color for delete button */
+  color: white;
+  border: none;
+  border-radius: 25px; /* Pill shape */
+  padding: 12px 24px; /* Slightly larger */
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 0 30px rgba(255, 68, 68, 0.7); /* Glow effect */
+  transition: background-color 0.3s, box-shadow 0.3s;
+  font-family: 'Doto', sans-serif; /* Match header font */
+  font-weight: bold; /* Make button text bold */
+  display: none; /* Hidden by default */
+}
+
+.batch-delete-button:hover {
+  background-color: #cc0000; /* Slightly darker red on hover */
+  box-shadow: 0 0 15px rgba(255, 68, 68, 0.9); /* Stronger glow on hover */
 }
 
 /* Capture Button */
@@ -251,32 +328,6 @@ body.light-mode .toast {
   background-color: #ff4444; /* Red background for errors */
 }
 
-/* Trashbin Icon */
-.trashbin-icon {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  cursor: pointer;
-  color: #888; /* Default color */
-  transition: color 0.3s;
-  z-index: 20; /* Ensure it appears above other elements */
-}
-
-.trashbin-icon:hover {
-  color: #ff4444; /* Red color on hover */
-}
-
-/* Ensure the trashbin icon is visible on carousel and thumbnails */
-.carousel-container .trashbin-icon {
-  top: 20px;
-  right: 20px;
-}
-
-.thumbnail-container .trashbin-icon {
-  top: 5px;
-  right: 5px;
-}
-
 /* Placeholder Thumbnail */
 .placeholder-thumbnail {
   display: flex;
@@ -299,4 +350,35 @@ body.dark-mode .placeholder-thumbnail {
   border-color: #555;
   background-color: #333;
   color: #aaa;
+}
+
+/* Carousel Trashbin Icon */
+.carousel-trashbin {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  cursor: pointer;
+  color: #888; /* Default color */
+  transition: color 0.3s;
+  z-index: 20; /* Ensure it appears above other elements */
+  display: none; /* Hidden by default */
+}
+
+.carousel-trashbin:hover {
+  color: #ff4444; /* Red color on hover */
+}
+
+/* Show trashbin icon for active carousel item */
+.carousel-item.active .carousel-trashbin {
+  display: block; /* Show trashbin icon for active carousel image */
+}
+
+/* Show trashbin icon for active thumbnail */
+.thumbnail-container.active .trashbin-icon {
+  display: block; /* Show trashbin icon for active thumbnail */
+}
+
+/* Hide trashbin icons for non-active thumbnails */
+.thumbnail-container:not(.active) .trashbin-icon {
+  display: none; /* Hide trashbin icon for non-active thumbnails */
 }
