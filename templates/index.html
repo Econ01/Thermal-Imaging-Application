@@ -55,7 +55,6 @@
         {% for photo in photo_files %}
         <div class="thumbnail-container" data-bs-target="#carouselExample" data-bs-slide-to="{{ loop.index0 }}">
             <img src="{{ url_for('output_file', filename=photo) }}" class="thumbnail" alt="{{ photo }}">
-            <div class="file-type">{{ photo.split('.')[-1] }}</div> <!-- File type indicator -->
         </div>
         {% endfor %}
     </div>
