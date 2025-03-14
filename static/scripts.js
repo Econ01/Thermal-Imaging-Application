@@ -34,11 +34,10 @@ carousel.addEventListener('slid.bs.carousel', (event) => {
     // Get the index of the active carousel item
     const activeIndex = Array.from(carousel.querySelectorAll('.carousel-item')).indexOf(carousel.querySelector('.carousel-item.active'));
 
-    // Update the carousel indicator (if needed)
+    // Update the carousel indicator
     currentIndexElement.textContent = activeIndex + 1;
 
     // Highlight the active thumbnail
-    const thumbnails = document.querySelectorAll('.thumbnail-container');
     thumbnails.forEach((thumbnail, index) => {
         if (index === activeIndex) {
             thumbnail.classList.add('active'); // Add border to the active thumbnail
@@ -46,6 +45,18 @@ carousel.addEventListener('slid.bs.carousel', (event) => {
             thumbnail.classList.remove('active'); // Remove border from other thumbnails
         }
     });
+
+    // Show trashbin icon for the active thumbnail
+    const activeThumbnail = document.querySelector('.thumbnail-container.active');
+    if (activeThumbnail) {
+        activeThumbnail.querySelector('.trashbin-icon').style.display = 'block';
+    }
+
+    // Show trashbin icon for the active carousel item
+    const activeCarouselItem = document.querySelector('.carousel-item.active');
+    if (activeCarouselItem) {
+        activeCarouselItem.querySelector('.carousel-trashbin').style.display = 'block';
+    }
 });
 
 // Initialize total images count
@@ -65,6 +76,111 @@ thumbnails.forEach((thumbnail, index) => {
     });
 });
 
+// Multi-Select Functionality
+let isCtrlPressed = false;
+const selectedThumbnails = new Set(); // Track selected thumbnails
+
+// Track Ctrl key press
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'Control') {
+        isCtrlPressed = true;
+    }
+});
+
+document.addEventListener('keyup', (event) => {
+    if (event.key === 'Control') {
+        isCtrlPressed = false;
+    }
+});
+
+// Add click event listeners to thumbnails
+const thumbnailContainers = document.querySelectorAll('.thumbnail-container');
+thumbnailContainers.forEach((container) => {
+    container.addEventListener('click', () => {
+        if (isCtrlPressed) {
+            // Toggle selection
+            container.classList.toggle('selected');
+            const filename = container.querySelector('.thumbnail').src.split('/').pop();
+
+            if (container.classList.contains('selected')) {
+                selectedThumbnails.add(filename); // Add to selected set
+            } else {
+                selectedThumbnails.delete(filename); // Remove from selected set
+            }
+
+            // Show/hide batch delete button
+            const batchDeleteButton = document.getElementById('batchDeleteButton');
+            if (selectedThumbnails.size > 0) {
+                batchDeleteButton.style.display = 'flex';
+            } else {
+                batchDeleteButton.style.display = 'none';
+            }
+
+            // Hide default trashbin icons when multiple thumbnails are selected
+            const defaultTrashbinIcons = document.querySelectorAll('.thumbnail-container .trashbin-icon');
+            defaultTrashbinIcons.forEach((icon) => {
+                if (selectedThumbnails.size > 0) {
+                    icon.style.display = 'none'; // Hide default trashbin icons
+                } else {
+                    icon.style.display = 'block'; // Show default trashbin icons
+                }
+            });
+        }
+    });
+});
+
+// Clear selection when clicking outside the thumbnails without holding Ctrl
+document.addEventListener('click', (event) => {
+    if (!isCtrlPressed && !event.target.closest('.thumbnail-container')) {
+        // Clear all selections
+        thumbnailContainers.forEach((container) => {
+            container.classList.remove('selected');
+        });
+
+        // Clear the selected thumbnails set
+        selectedThumbnails.clear();
+
+        // Hide the batch delete button
+        const batchDeleteButton = document.getElementById('batchDeleteButton');
+        batchDeleteButton.style.display = 'none';
+
+        // Show default trashbin icons
+        const defaultTrashbinIcons = document.querySelectorAll('.thumbnail-container .trashbin-icon');
+        defaultTrashbinIcons.forEach((icon) => {
+            icon.style.display = 'block';
+        });
+    }
+});
+
+// Batch Delete Functionality
+const batchDeleteButton = document.getElementById('batchDeleteButton');
+batchDeleteButton.addEventListener('click', async () => {
+    if (selectedThumbnails.size === 0) return; // No files selected
+
+    // Ask for confirmation
+    const confirmDelete = confirm(`Are you sure you want to delete ${selectedThumbnails.size} selected files?`);
+    if (!confirmDelete) return;
+
+    try {
+        // Send a request to delete each selected file
+        for (const filename of selectedThumbnails) {
+            const response = await fetch(`/delete-file/${filename}`, {
+                method: 'DELETE',
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to delete file: ${filename}`);
+            }
+        }
+
+        // Refresh the page to reflect the changes
+        window.location.reload();
+    } catch (error) {
+        console.error('Error deleting files:', error);
+        alert('An error occurred while deleting the files.');
+    }
+});
+
 // Capture Button Functionality
 const captureButton = document.getElementById('captureButton');
 const buttonIcon = document.getElementById('buttonIcon');
@@ -72,10 +188,6 @@ const buttonText = document.getElementById('buttonText');
 const loadingSpinner = document.getElementById('loadingSpinner');
 const captureToast = new bootstrap.Toast(document.getElementById('captureToast'));
 const toastBody = document.querySelector('.toast-body');
-
-// Change the font of the button to match the header font and make it bold
-captureButton.style.fontFamily = "'Doto', sans-serif";
-captureButton.style.fontWeight = 'bold';
 
 captureButton.addEventListener('click', async () => {
     // Show loading state
@@ -146,162 +258,24 @@ captureButton.addEventListener('click', async () => {
     }
 });
 
-// Function to display a new toast message
-function showToast(message, type = 'default') {
-    const toastElement = document.createElement('div');
-    toastElement.classList.add('toast');
-
-    // Add class based on message type (error or success)
-    if (type === 'error') {
-        toastElement.classList.add('error');
-    } else if (type === 'success') {
-        toastElement.classList.add('success');
-    }
-
-    // Set the toast message content
-    const toastBody = document.createElement('div');
-    toastBody.classList.add('toast-body');
-    toastBody.textContent = message;
-    toastElement.appendChild(toastBody);
-
-    // Add the toast to the toast container
-    toastContainer.appendChild(toastElement);
-
-    // Initialize and show the toast using Bootstrap
-    const toast = new bootstrap.Toast(toastElement, {
-        autohide: true,
-        delay: 3000, // Hide the toast after 3 seconds
-    });
-    toast.show();
-}
-
-// Function to display a placeholder thumbnail when no images are found
-function displayPlaceholderThumbnail() {
-    const thumbnailGallery = document.querySelector('.thumbnail-gallery');
-
-    // Clear existing thumbnails
-    thumbnailGallery.innerHTML = '';
-
-    // Create a placeholder thumbnail
-    const placeholderThumbnail = document.createElement('div');
-    placeholderThumbnail.classList.add('thumbnail-container', 'placeholder-thumbnail');
-
-    // Add text explaining the issue
-    const placeholderText = document.createElement('p');
-    placeholderText.textContent = "No images found. Please add images to the Output folder.";
-    placeholderThumbnail.appendChild(placeholderText);
-
-    // Add the placeholder to the thumbnail gallery
-    thumbnailGallery.appendChild(placeholderThumbnail);
-}
-
-// Function to load images from the Output folder
-async function loadImages() {
-    try {
-        // Fetch the list of images from the server
-        const response = await fetch('/get-images');
-        const photoFiles = await response.json();
-
-        if (photoFiles.length === 0) {
-            // If no images are found, display the placeholder thumbnail
-            displayPlaceholderThumbnail();
-        } else {
-            // Otherwise, load the images into the carousel and thumbnails
-            loadCarouselAndThumbnails(photoFiles);
-        }
-    } catch (error) {
-        console.error("Error loading images:", error);
-        displayPlaceholderThumbnail(); // Show placeholder in case of an error
-    }
-}
-
-// Function to load images into the carousel and thumbnails
-function loadCarouselAndThumbnails(photoFiles) {
-    const carouselInner = document.querySelector('.carousel-inner');
-    const thumbnailGallery = document.querySelector('.thumbnail-gallery');
-
-    // Clear existing content
-    carouselInner.innerHTML = '';
-    thumbnailGallery.innerHTML = '';
-
-    // Load each image into the carousel and thumbnails
-    photoFiles.forEach((file, index) => {
-        // Add image to carousel
-        const carouselItem = document.createElement('div');
-        carouselItem.classList.add('carousel-item');
-        if (index === 0) carouselItem.classList.add('active'); // Set first item as active
-
-        const carouselImage = document.createElement('img');
-        carouselImage.src = `/output/${file}`;
-        carouselImage.classList.add('d-block', 'w-100', 'carousel-image');
-        carouselItem.appendChild(carouselImage);
-
-        // Add file type indicator to carousel image
-        const carouselFileType = document.createElement('div');
-        carouselFileType.classList.add('file-type');
-        carouselFileType.textContent = file.split('.').pop(); // Extract file extension
-        carouselItem.appendChild(carouselFileType);
-
-        carouselInner.appendChild(carouselItem);
-
-        // Add image to thumbnail gallery
-        const thumbnailContainer = document.createElement('div');
-        thumbnailContainer.classList.add('thumbnail-container');
-        thumbnailContainer.setAttribute('data-bs-target', '#carouselExample');
-        thumbnailContainer.setAttribute('data-bs-slide-to', index);
-
-        const thumbnailImage = document.createElement('img');
-        thumbnailImage.src = `/output/${file}`;
-        thumbnailImage.classList.add('thumbnail');
-        thumbnailContainer.appendChild(thumbnailImage);
-
-        // Add file type indicator to thumbnail
-        const thumbnailFileType = document.createElement('div');
-        thumbnailFileType.classList.add('file-type');
-        thumbnailFileType.textContent = file.split('.').pop(); // Extract file extension
-        thumbnailContainer.appendChild(thumbnailFileType);
-
-        // Add trashbin icon to thumbnail
-        const thumbnailTrashbin = document.createElement('span');
-        thumbnailTrashbin.classList.add('material-symbols-outlined', 'trashbin-icon');
-        thumbnailTrashbin.textContent = 'delete'; // Trashbin icon
-        thumbnailContainer.appendChild(thumbnailTrashbin);
-
-        thumbnailGallery.appendChild(thumbnailContainer);
-    });
-
-    // Reattach event listeners for thumbnails
-    const thumbnails = document.querySelectorAll('.thumbnail-container');
-    thumbnails.forEach((thumbnail, index) => {
-        thumbnail.addEventListener('click', () => {
-            const carousel = new bootstrap.Carousel('#carouselExample');
-            carousel.to(index); // Navigate to the corresponding slide
-        });
-    });
-
-    // Add event listeners for trashbin icons
-    addTrashbinEventListeners();
-}
-
 // Function to handle trashbin icon clicks
 function addTrashbinEventListeners() {
-    const trashbinIcons = document.querySelectorAll('.trashbin-icon');
-
+    const trashbinIcons = document.querySelectorAll('.trashbin-icon, .carousel-trashbin');
     trashbinIcons.forEach((icon) => {
         icon.addEventListener('click', async (event) => {
-            event.stopPropagation(); // Prevent thumbnail click event from firing
+            event.stopPropagation(); // Prevent thumbnail or carousel click event from firing
 
             // Get the corresponding file name
-            const container = icon.closest('.carousel-container, .thumbnail-container');
+            const container = icon.closest('.carousel-item, .thumbnail-container');
             const imageElement = container.querySelector('.carousel-image, .thumbnail');
-            const fileName = imageElement.src.split('/').pop(); // Extract file name from src
+            const filename = imageElement.src.split('/').pop(); // Extract file name from src
 
             // Ask for confirmation before deletion
-            const confirmDelete = confirm(`Are you sure you want to delete "${fileName}"?`);
+            const confirmDelete = confirm(`Are you sure you want to delete "${filename}"?`);
             if (confirmDelete) {
                 try {
                     // Send a request to delete the file
-                    const response = await fetch(`/delete-file/${fileName}`, {
+                    const response = await fetch(`/delete-file/${filename}`, {
                         method: 'DELETE',
                     });
 
@@ -320,5 +294,7 @@ function addTrashbinEventListeners() {
     });
 }
 
-// Call the function to load images when the page loads
-document.addEventListener('DOMContentLoaded', loadImages);
+// Initialize trashbin event listeners
+document.addEventListener('DOMContentLoaded', () => {
+    addTrashbinEventListeners();
+});
