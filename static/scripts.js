@@ -29,16 +29,21 @@ const currentIndexElement = document.getElementById('currentIndex');
 const totalImagesElement = document.getElementById('totalImages');
 const thumbnails = document.querySelectorAll('.thumbnail-container');
 
+// Add event listener for carousel slide events
 carousel.addEventListener('slid.bs.carousel', (event) => {
+    // Get the index of the active carousel item
     const activeIndex = Array.from(carousel.querySelectorAll('.carousel-item')).indexOf(carousel.querySelector('.carousel-item.active'));
+
+    // Update the carousel indicator (if needed)
     currentIndexElement.textContent = activeIndex + 1;
 
     // Highlight the active thumbnail
+    const thumbnails = document.querySelectorAll('.thumbnail-container');
     thumbnails.forEach((thumbnail, index) => {
         if (index === activeIndex) {
-            thumbnail.classList.add('active');
+            thumbnail.classList.add('active'); // Add border to the active thumbnail
         } else {
-            thumbnail.classList.remove('active');
+            thumbnail.classList.remove('active'); // Remove border from other thumbnails
         }
     });
 });
@@ -231,16 +236,30 @@ function loadCarouselAndThumbnails(photoFiles) {
         carouselImage.classList.add('d-block', 'w-100', 'carousel-image');
         carouselItem.appendChild(carouselImage);
 
+        // Add file type indicator to carousel image
+        const carouselFileType = document.createElement('div');
+        carouselFileType.classList.add('file-type');
+        carouselFileType.textContent = file.split('.').pop(); // Extract file extension
+        carouselItem.appendChild(carouselFileType);
+
         carouselInner.appendChild(carouselItem);
 
         // Add image to thumbnail gallery
         const thumbnailContainer = document.createElement('div');
         thumbnailContainer.classList.add('thumbnail-container');
+        thumbnailContainer.setAttribute('data-bs-target', '#carouselExample');
+        thumbnailContainer.setAttribute('data-bs-slide-to', index);
 
         const thumbnailImage = document.createElement('img');
         thumbnailImage.src = `/output/${file}`;
         thumbnailImage.classList.add('thumbnail');
         thumbnailContainer.appendChild(thumbnailImage);
+
+        // Add file type indicator to thumbnail
+        const thumbnailFileType = document.createElement('div');
+        thumbnailFileType.classList.add('file-type');
+        thumbnailFileType.textContent = file.split('.').pop(); // Extract file extension
+        thumbnailContainer.appendChild(thumbnailFileType);
 
         // Add trashbin icon to thumbnail
         const thumbnailTrashbin = document.createElement('span');
@@ -249,6 +268,15 @@ function loadCarouselAndThumbnails(photoFiles) {
         thumbnailContainer.appendChild(thumbnailTrashbin);
 
         thumbnailGallery.appendChild(thumbnailContainer);
+    });
+
+    // Reattach event listeners for thumbnails
+    const thumbnails = document.querySelectorAll('.thumbnail-container');
+    thumbnails.forEach((thumbnail, index) => {
+        thumbnail.addEventListener('click', () => {
+            const carousel = new bootstrap.Carousel('#carouselExample');
+            carousel.to(index); // Navigate to the corresponding slide
+        });
     });
 
     // Add event listeners for trashbin icons
